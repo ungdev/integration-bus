@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
     # ----- Lecture des fichiers -----
     print("Reading Participant File")
-    with open(participant_file, newline='', encoding='cp1252') as csvfile:
+    with open(participant_file, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         for row in reader:
             id = int(row["id"])
@@ -97,7 +97,7 @@ if __name__ == "__main__":
                                             bus_manual=row['bus_manual'] if row['bus_manual'] else None)
 
     print("Reading Bus File"),
-    with open(bus_file, newline='', encoding='cp1252') as csvfile:
+    with open(bus_file, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         for row in reader:
             numero = int(row["numero"])
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                                     capacite=row['capacite'])
 
     print("Reading Equipe File")
-    with open(equipe_file, newline='', encoding='cp1252') as csvfile:
+    with open(equipe_file, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=';')
         for row in reader:
             numero = int(row["numero"])
@@ -268,14 +268,14 @@ if __name__ == "__main__":
 
     # ----- Ecriture des fichiers de sortie -----
 
-    with open('./output/export_participant.csv', 'w', newline='') as csvfile:
+    with open('./output/export_participant.csv', 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
         writer.writerow(['id', 'prenom', 'nom', 'mail', 'telephone', 'ce', 'num_equipe', 'orga', 'majeur', 'bus_manual', 'bus_assignment'])
         for participant in dict_participants.values():
             writer.writerow([participant.id, participant.prenom, participant.nom, participant.mail, participant.telephone, participant.ce,
                              participant.num_equipe, participant.orga, participant.majeur, participant.bus_manual, participant.bus_assignment])
 
-    with open('./output/export_bus.csv', 'w', newline='') as csvfile:
+    with open('./output/export_bus.csv', 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
         writer.writerow(['numero', 'capacite', 'places occupées', 'equipe1', 'equipe2', 'equipe3', 'equipe4', 'equipe5', 'equipe_7', 'equipe_8'])
         for id_bus, bus in dict_bus.items():
@@ -284,7 +284,7 @@ if __name__ == "__main__":
             writer.writerow(list_equipe_bus)
 
     for id_bus in dict_bus.keys():
-        with open('./output/bus' + str(id_bus) + '.csv', 'w', newline='') as csvfile:
+        with open('./output/bus' + str(id_bus) + '.csv', 'w', newline='', encoding="utf-8") as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
             writer.writerow(['Numero', 'Prenom', 'Nom', 'Equipe', 'Telephone', 'Check In Depart', 'Check In Retour'])
             num = 1

@@ -12,7 +12,7 @@ Prérequis : Avoir une version de python3 installée sur son poste.
 
 1. Ouvrir un terminal de commande
 2. Récupérer le repo sur son poste : `git clone git@github.com:FlashD10/buswei.git`
-3. Se déplacer dans le dossier du projet : `cd buswei`
+3. Se déplacer dans le dossier du projet : `cd integration-bus`
 4. Créer un environnement virtuel : `python3 -m venv .venv`
 5. Activer l'environnement virutel : `source .venv/bin/activate`
 6. Installer les dépendances : `pip install -r requirements.txt`
