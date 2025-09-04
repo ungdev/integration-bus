@@ -69,10 +69,14 @@ if __name__ == "__main__":
     nb_orga : int = 0
     nb_place_dans_bus : int = 0
 
+
+    # ---- Parameters ----
     MAX_ECART_FACTION = 2
     MAX_MINEUR_PAR_BUS = 50
     MIN_CE_PAR_BUS = 1
 
+    id_bus_pmom = 10
+    list_equipe_pmom = [51, 52, 53, 54]
 
     # ----- Lecture des fichiers -----
     print("Reading Participant File")
@@ -144,8 +148,8 @@ if __name__ == "__main__":
         elif participant.benevole:
             nb_benevole += 1
 
-        else:
-            raise Exception(f"No role for participant {participant.id}")
+        # else:
+        #     raise Exception(f"No role for participant {participant.id}")
 
         if (not participant.majeur) and participant.num_equipe:
             nb_mineur_par_equipe[participant.num_equipe] += 1
@@ -233,6 +237,14 @@ if __name__ == "__main__":
 
         lp += ce_dans_bus[id_bus] >= MIN_CE_PAR_BUS
 
+    # 6. Bus PMOM
+    for id_equipe, equipe in dict_equipes.items():
+        if id_equipe not in list_equipe_pmom:
+            lp += var_bus_equipe[id_bus_pmom, id_equipe] == 0
+        if id_equipe in list_equipe_pmom:
+            lp += var_bus_equipe[id_bus_pmom, id_equipe] == 1
+
+
     # print(lp)
     lp.writeLP('lp.txt')
 
@@ -256,7 +268,7 @@ if __name__ == "__main__":
         for id_bus, bus in dict_bus.items():
             if var_bus_equipe[id_bus, id_equipe].varValue != 0:
                 equipe.bus_assignment = id_bus
-                bus.equipe_assignments.append(id_equipe)
+                bus.equipe_assignments.append(equipe.nom)
                 places_occupees_par_bus[id_bus] += equipe.nb_membre - equipe.nb_manual_assigned
 
     for id_participant, participant in dict_participants.items():
@@ -268,16 +280,18 @@ if __name__ == "__main__":
 
     # ----- Ecriture des fichiers de sortie -----
 
-    with open('./output/export_participant.csv', 'w', newline='', encoding="utf-8") as csvfile:
+    with open('./output/results_participant.csv', 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
-        writer.writerow(['id', 'prenom', 'nom', 'mail', 'telephone', 'ce', 'num_equipe', 'orga', 'majeur', 'bus_manual', 'bus_assignment'])
-        for participant in dict_participants.values():
-            writer.writerow([participant.id, participant.prenom, participant.nom, participant.mail, participant.telephone, participant.ce,
-                             participant.num_equipe, participant.orga, participant.majeur, participant.bus_manual, participant.bus_assignment])
+        writer.writerow(['id', 'prenom', 'nom', 'mail', 'telephone', 'nouveau', 'ce', 'num_equipe', 'benevole', 'orga', 'majeur', 'bus_manual', 'bus_assignment', 'departure_time'])
 
-    with open('./output/export_bus.csv', 'w', newline='', encoding="utf-8") as csvfile:
+        for participant in dict_participants.values():
+            departure_time = "11h" if (participant.bus_assignment is None or participant.bus_assignment < 6) else "13h"
+            writer.writerow([participant.id, participant.prenom, participant.nom, participant.mail, participant.telephone, participant.nouveau, participant.ce,
+                             participant.num_equipe, participant.benevole, participant.orga, participant.majeur, participant.bus_manual, participant.bus_assignment, departure_time])
+
+    with open('./output/results_bus.csv', 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile, delimiter=';')
-        writer.writerow(['numero', 'capacite', 'places occupées', 'equipe1', 'equipe2', 'equipe3', 'equipe4', 'equipe5', 'equipe_7', 'equipe_8'])
+        writer.writerow(['numero', 'capacite', 'places occupées', 'equipe1', 'equipe2', 'equipe3', 'equipe4', 'equipe5', 'equipe_6', 'equipe_7', 'equipe_8'])
         for id_bus, bus in dict_bus.items():
             list_equipe_bus = [bus.numero, bus.capacite, places_occupees_par_bus[id_bus]]
             list_equipe_bus.extend(bus.equipe_assignments)
@@ -286,10 +300,10 @@ if __name__ == "__main__":
     for id_bus in dict_bus.keys():
         with open('./output/bus' + str(id_bus) + '.csv', 'w', newline='', encoding="utf-8") as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
-            writer.writerow(['Numero', 'Prenom', 'Nom', 'Equipe', 'Telephone', 'Check In Depart', 'Check In Retour'])
+            writer.writerow(['Numero', 'Prenom', 'Nom', 'Num equipe', 'Equipe', 'Telephone', 'Check In Depart', 'Check In Retour'])
             num = 1
             for participant in dict_participants.values():
                 if participant.bus_assignment == id_bus:
                     equipe = dict_equipes[participant.num_equipe].nom if participant.num_equipe else ''
-                    writer.writerow([num, participant.prenom, participant.nom, equipe, participant.telephone, '', ''])
+                    writer.writerow([num, participant.prenom, participant.nom, participant.num_equipe, equipe, participant.telephone, '', ''])
                     num += 1
